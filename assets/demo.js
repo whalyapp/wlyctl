@@ -157,7 +157,7 @@
     while (termEl.children.length > 60) termEl.removeChild(termEl.firstChild);
     return d;
   }
-  const PROMPT_HTML = `<span class="cwd">~/acme</span> <span class="wly">[wly:acme/uat]</span> <span class="dol">$</span> `;
+  const PROMPT_HTML = `<span class="cwd">~/acme</span> <span class="wly">[wly:acme/prod]</span> <span class="dol">$</span> `;
   function clearTerm() { termEl.innerHTML = ""; }
 
   // ---------- steps ----------
@@ -238,7 +238,7 @@
 
   // ---------- script ----------
   const PULL_OUT = [
-    `<span class="dim">Pulling from 'uat' (acme-uat on whaly.io)…</span>`,
+    `<span class="dim">Pulling from 'prod' (acme-prod on whaly.io)…</span>`,
     `Pulled 6 sources to ./sources/ <span class="dim">(6 unchanged)</span>`,
     `Pulled 24 objects to ./objects/ <span class="dim">(1 updated, 23 unchanged)</span>`,
     `Pulled 9 object links to ./object-links/ <span class="dim">(9 unchanged)</span>`,
@@ -295,7 +295,7 @@
     await sleep(400, g);
     await out([`  <span class="ag">⏺</span> Bash <span class="b">wlyctl diff --json</span> <span class="dim">→ ok, 2 to update, 0 blocked</span>`], g);
     await sleep(500, g);
-    await out([`  Done. Review with <span class="b">wlyctl diff</span>, then push to uat.`], g);
+    await out([`  Done. Review with <span class="b">wlyctl diff</span>, then push.`], g);
     await sleep(1100, g);
 
     // 3. push
@@ -315,34 +315,24 @@
       110
     );
     await sleep(300, g);
-    const q = line(`Apply 2 document(s) to 'uat'? <span class="dim">(y/N)</span> `);
-    await sleep(700, g);
+    const c = line(`Type "acme" to confirm: `);
+    await sleep(500, g);
+    await type(c, "acme", g, 70);
+    const q = line(`Apply 2 document(s) to 'prod'? <span class="dim">(y/N)</span> `);
+    await sleep(500, g);
     await type(q, "y", g);
     await out(
       [
         `<span class="ok">✓</span> objects/account.yaml <span class="dim">updated</span>`,
         `<span class="ok">✓</span> layouts/account/account-record.yaml <span class="dim">updated</span>`,
-        `<span class="dim">Backup: .wlyctl/backups/uat/2026-10-14T09-41-07</span>`,
       ],
       g,
       220
     );
     markDirty("objects/account.yaml", false);
     markDirty("layouts/account/account-record.yaml", false);
-    await sleep(700, g);
-    await out([`<span class="dim"># checked on uat in the Whaly app</span> <span class="ok">✓</span>`], g);
-    await sleep(500, g);
 
-    // 4. prod, then your users
-    await cmd("wlyctl push -r prod", g);
-    await sleep(400, g);
-    const c = line(`Type "acme" to confirm: `);
-    await sleep(500, g);
-    await type(c, "acme", g, 70);
-    const q2 = line(`Apply 2 document(s) to 'prod'? <span class="dim">(y/N)</span> `);
-    await sleep(500, g);
-    await type(q2, "y", g);
-    await out([`<span class="ok">✓</span> 2 documents updated on <span class="b">prod</span>`], g);
+    // 4. your users
     step(4);
     await fieldLive(g);
     await sleep(1600, g);
@@ -374,12 +364,10 @@
     line(`  <span class="ag">⏺</span> Bash <span class="b">wlyctl diff --json</span> <span class="dim">→ ok, 2 to update</span>`);
     line(PROMPT_HTML + `<span class="cmd">wlyctl push</span>`);
     line(`  <span class="ok">+ Metrics added: revenue-30d</span>`);
-    line(`Apply 2 document(s) to 'uat'? <span class="dim">(y/N)</span> <span class="cmd">y</span>`);
+    line(`Type "acme" to confirm: <span class="cmd">acme</span>`);
+    line(`Apply 2 document(s) to 'prod'? <span class="dim">(y/N)</span> <span class="cmd">y</span>`);
     line(`<span class="ok">✓</span> objects/account.yaml <span class="dim">updated</span>`);
     line(`<span class="ok">✓</span> layouts/account/account-record.yaml <span class="dim">updated</span>`);
-    line(PROMPT_HTML + `<span class="cmd">wlyctl push -r prod</span>`);
-    line(`Type "acme" to confirm: <span class="cmd">acme</span>`);
-    line(`<span class="ok">✓</span> 2 documents updated on <span class="b">prod</span>`);
     step(4);
     winEl.classList.add("payoff");
     fieldEl.classList.add("live", "settled");
